@@ -196,3 +196,10 @@ body {
   font-size: 14px;
   margin-bottom: 5px;
 }
+.loader {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0;
+  color: #8cc755;
+}

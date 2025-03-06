@@ -9,28 +9,35 @@ const App = () => {
   const [showForm, setShowForm] = useState(false);
   const [loadingStates, setLoadingStates] = useState({}); // Track loading per card
   const [editData, setEditData] = useState(null);
+  const [loading, setLoading] = useState(true); // 🔥 New: Loading state for API fetch
 
   useEffect(() => {
     axios.get("https://jsonplaceholder.typicode.com/posts")
-      .then(response => setApiData(response.data))
-      .catch(error => console.error("Error fetching API data:", error));
+      .then(response => {
+        setApiData(response.data);
+        setLoading(false);  // ✅ Hide loader after data is fetched
+      })
+      .catch(error => {
+        console.error("Error fetching API data:", error);
+        setLoading(false);  // ❌ Hide loader even if there is an error
+      });
   }, []);
 
   const addData = (data) => {
-    setUserData([{ ...data, id: Date.now() }, ...userData]); // Add new data to the beginning
+    setUserData([{ ...data, id: Date.now() }, ...userData]);
   };
 
   const handleDelete = async (id) => {
-    setLoadingStates((prev) => ({ ...prev, [id]: true })); // Set loading only for selected card
+    setLoadingStates((prev) => ({ ...prev, [id]: true }));
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulated delay
-      setUserData((prevData) => prevData.filter((item) => item.id !== id)); // Remove item
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setUserData((prevData) => prevData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting post", error);
     }
 
-    setLoadingStates((prev) => ({ ...prev, [id]: false })); // Reset loading state
+    setLoadingStates((prev) => ({ ...prev, [id]: false }));
   };
 
   const updateData = (updatedItem) => {
@@ -49,13 +56,19 @@ const App = () => {
           closeForm={() => setShowForm(false)}
         />
       )}
-      <DataList
-        apiData={apiData}
-        userData={userData}
-        deleteData={handleDelete}  // ✅ Correct function reference
-        setEditData={(item) => { setEditData(item); setShowForm(true); }}
-        loadingStates={loadingStates} // ✅ Correct prop name
-      />
+
+      {/* 🔥 Show Loader While Fetching Data */}
+      {loading ? (
+        <p className="loader">Loading Data...</p>
+      ) : (
+        <DataList
+          apiData={apiData}
+          userData={userData}
+          deleteData={handleDelete}
+          setEditData={(item) => { setEditData(item); setShowForm(true); }}
+          loadingStates={loadingStates}
+        />
+      )}
     </div>
   );
 };
